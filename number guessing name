@@ -1,0 +1,46 @@
+pragma solidity ^0.7.0;
+
+contract NameGuessingGame {
+    // define a struct to store the game state
+    struct Game {
+        string secretName;
+        address player1;
+        address player2;
+        bool finished;
+    }
+    
+    // define a mapping to store the games
+    mapping(uint => Game) public games;
+    
+    // define a function to create a new game
+    function createGame(string memory secretName) public {
+        // create a new game and store it in the mapping
+        uint id = games.length;
+        games[id] = Game(secretName, msg.sender, address(0), false);
+    }
+    
+    // define a function to join an existing game
+    function joinGame(uint id) public {
+        // get the game from the mapping
+        Game storage game = games[id];
+        
+        // check if the game has already been finished
+        require(!game.finished, "This game has already been finished");
+        
+        // check if the game is already full
+        require(game.player2 == address(0), "This game is already full");
+        
+        // update the game with the second player
+        game.player2 = msg.sender;
+    }
+    
+    // define a function to make a guess
+    function guess(uint id, string memory guess) public {
+        // get the game from the mapping
+        Game storage game = games[id];
+        
+        // check if the game has already been finished
+        require(!game.finished, "This game has already been finished");
+        
+        // check if the guesser is the second player
+        require(msg.sender == game.player2,
